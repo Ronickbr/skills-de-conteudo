@@ -1,6 +1,6 @@
 ---
 name: reel
-description: Cria um reel vertical 1080x1920 pronto para postar, do gancho ao MP4 renderizado no computador da pessoa. Use quando a pessoa pedir "faz um reel sobre X", vídeo curto, reels para Instagram ou TikTok, roteiro com vídeo pronto, ou quiser transformar uma ideia, dica, lista ou conteúdo em vídeo animado com legenda. Faz uma entrevista curta, escreve gancho e roteiro cena a cena, gera a narração com a chave do ElevenLabs da própria pessoa (opcional), mixa a trilha que ela fornecer e renderiza com Remotion.
+description: Produz reels verticais 1080x1920 com roteiro, cenas, legendas animadas e renderização MP4 via Remotion. Use quando pedirem reel, vídeo curto para Instagram ou TikTok, transformação de texto em vídeo ou um roteiro renderizado. Pode gerar narração via ElevenLabs com chave local opcional e mixar trilha fornecida pelo usuário.
 license: MIT
 ---
 
@@ -14,7 +14,7 @@ O vídeo é tipográfico: fundo escuro com um brilho suave, cenas com título gr
 numerada, número animado, cartão de antes/depois e um bloco final "Comenta PALAVRA", com a
 legenda aparecendo palavra por palavra no centro, alternando peso forte e itálico.
 
-`<skill>` abaixo é a pasta desta skill (onde está este SKILL.md).
+`<skill>` nos comandos representa o caminho ABSOLUTO da pasta desta skill (onde está este SKILL.md). Substitua o marcador por esse caminho antes de executar comandos; não digite `<skill>` literalmente no terminal. Em PowerShell, use `Copy-Item` no lugar de `cp -R` quando necessário.
 
 ## Pré-requisitos
 
