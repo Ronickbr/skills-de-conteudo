@@ -1,0 +1,7 @@
+{
+  "name": "carrossel-instagram",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "dependencies": { "playwright": "1.56.1" }
+}

@@ -1,9 +1,9 @@
 # reel
 
-Skill de Claude Code que entrega um reel vertical 1080x1920 **pronto em MP4**: gancho, roteiro
+Skill de OpenAI Codex e Claude Code que entrega um reel vertical 1080x1920 **pronto em MP4**: gancho, roteiro
 cena a cena, narração, trilha e render local com [Remotion](https://www.remotion.dev).
 
-Você pede "faz um reel sobre X para o meu perfil de Y", o Claude faz 6 perguntas rápidas,
+Você pede "faz um reel sobre X para o meu perfil de Y", o agente faz 6 perguntas rápidas,
 escreve o roteiro, monta as cenas (título, lista numerada, número animado, antes/depois e o
 "Comenta PALAVRA" no fim), sincroniza a legenda palavra por palavra e renderiza no seu
 computador.
@@ -16,7 +16,7 @@ computador.
 
 ## Precisa de
 
-- Node 18 ou mais novo
+- Node 22 ou mais novo
 - ffmpeg (opcional, para nivelar o volume da trilha)
 - ~600 MB livres para o Remotion, instalado uma vez
 
@@ -24,7 +24,7 @@ computador.
 
 ```
 reel/
-├── SKILL.md              instruções que o Claude segue
+├── SKILL.md              instruções que o agente segue
 ├── .env.exemplo          onde vai a chave do ElevenLabs
 ├── exemplos/
 │   └── cenas.exemplo.json
@@ -33,7 +33,7 @@ reel/
 │   ├── mixar.mjs         prepara a trilha (ffmpeg opcional)
 │   ├── checar.mjs        checklist: contraste, ritmo, gancho, CTA
 │   └── _comum.mjs
-└── template/             projeto Remotion copiado para ~/reels-estudio
+└── template/             projeto Remotion copiado para ./reels-estudio
     ├── package.json      versões fixas
     ├── remotion.config.ts
     ├── cenas.json        exemplo

@@ -52,20 +52,50 @@ const texto = (v) => typeof v === 'string' && v.trim().length > 0;
 /** Erros que impedem o render. Devolve lista vazia quando está tudo certo. */
 export const validar = (d) => {
   const erros = [];
-  if (!d || typeof d !== 'object') return ['O arquivo precisa ser um objeto JSON.'];
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return ['O arquivo precisa ser um objeto JSON.'];
   if (!Array.isArray(d.cenas) || d.cenas.length === 0) return ['Falta a lista "cenas" (com pelo menos uma cena).'];
   d.cenas.forEach((c, i) => {
     const n = `Cena ${i + 1}`;
+    if (!c || typeof c !== 'object' || Array.isArray(c)) { erros.push(`${n}: precisa ser um objeto.`); return; }
     if (!TIPOS.includes(c.tipo)) erros.push(`${n}: tipo "${c.tipo}" não existe. Use um destes: ${TIPOS.join(', ')}.`);
     if (!texto(c.fala)) erros.push(`${n}: falta "fala" (o texto dito nessa cena).`);
-    if (c.duracao !== undefined && !(typeof c.duracao === 'number' && c.duracao > 0)) erros.push(`${n}: "duracao" precisa ser número de segundos.`);
+    if (c.duracao !== undefined && !(Number.isFinite(c.duracao) && c.duracao > 0)) erros.push(`${n}: "duracao" precisa ser número de segundos.`);
     if ((c.tipo === 'gancho' || c.tipo === 'titulo') && !texto(c.titulo)) erros.push(`${n}: falta "titulo".`);
     if (c.tipo === 'lista' && (!Array.isArray(c.itens) || c.itens.length < 2 || !c.itens.every(texto))) erros.push(`${n}: "itens" precisa ter pelo menos 2 textos.`);
-    if (c.tipo === 'numero' && typeof c.ate !== 'number') erros.push(`${n}: "ate" precisa ser número.`);
+    if (c.tipo === 'numero' && !Number.isFinite(c.ate)) erros.push(`${n}: "ate" precisa ser número finito.`);
+    if (c.de !== undefined && !Number.isFinite(c.de)) erros.push(`${n}: "de" precisa ser número finito.`);
+    if (c.decimais !== undefined && (!Number.isInteger(c.decimais) || c.decimais < 0 || c.decimais > 10)) erros.push(`${n}: "decimais" deve ser inteiro de 0 a 10.`);
     if (c.tipo === 'antes-depois' && !(texto(c.antes) && texto(c.depois))) erros.push(`${n}: faltam "antes" e "depois".`);
     if (c.tipo === 'cta' && !texto(c.palavra)) erros.push(`${n}: falta "palavra" (a palavra-chave que a pessoa comenta).`);
   });
+  for (const key of ['narracao', 'palavras', 'trilha']) {
+    const v = d[key];
+    if (v != null && (typeof v !== 'string' || !v.trim() || path.isAbsolute(v) || /[\\:]/.test(v) || v.split('/').includes('..'))) erros.push(`"${key}" deve ser caminho relativo dentro de public/.`);
+  }
+  if (d.cores != null && (typeof d.cores !== 'object' || Array.isArray(d.cores))) erros.push('"cores" precisa ser um objeto.');
+  else for (const [key, value] of Object.entries(d.cores ?? {})) {
+    if (!/^#[0-9a-f]{6}$/i.test(value)) erros.push(`Cor ${key}: use #rrggbb.`);
+  }
   if (d.volumeTrilha !== undefined && !(typeof d.volumeTrilha === 'number' && d.volumeTrilha >= 0 && d.volumeTrilha <= 1)) erros.push('"volumeTrilha" vai de 0 a 1.');
+  return erros;
+};
+
+/** Rejeita alinhamentos inválidos e fala alterada mesmo mantendo o número de cenas. */
+export const validarTempos = (t, cenas) => {
+  if (!t || !Number.isFinite(t.duracao) || t.duracao <= 0 || !Array.isArray(t.cenas) || !Array.isArray(t.palavras)) return ['palavras.json inválido: faltam duração, cenas ou palavras.'];
+  const erros = [];
+  if (t.cenas.length !== cenas.length) return ['palavras.json tem número de cenas diferente; rode narrar.mjs de novo.'];
+  t.cenas.forEach((c, i) => {
+    if (!c || !Number.isFinite(c.inicio) || !Number.isFinite(c.fim) || c.inicio < 0 || c.fim <= c.inicio || c.fim > t.duracao + 0.01 || (i && c.inicio < t.cenas[i - 1]?.fim - 0.01)) erros.push(`Tempos inválidos na cena ${i + 1}.`);
+  });
+  t.palavras.forEach((p, i) => {
+    if (!p || !texto(p.texto) || !Number.isFinite(p.inicio) || !Number.isFinite(p.fim) || p.inicio < 0 || p.fim < p.inicio || p.fim > t.duracao + 0.01 || !Number.isInteger(p.cena) || p.cena < 0 || p.cena >= cenas.length || (i && p.inicio < t.palavras[i - 1]?.inicio)) erros.push(`Tempo inválido na palavra ${i + 1}.`);
+  });
+  cenas.forEach((c, i) => {
+    const recebido = t.palavras.filter(p => p?.cena === i).map(p => p.texto).join(' ').trim();
+    const esperado = c.fala.trim().replace(/\s+/g, ' ');
+    if (recebido !== esperado) erros.push(`A fala da cena ${i + 1} mudou após narrar; rode narrar.mjs de novo.`);
+  });
   return erros;
 };
 

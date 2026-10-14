@@ -60,7 +60,8 @@ const Gancho: React.FC<Props<CenaGancho>> = ({ cena, cores, fonte, fonteItalica,
         style={{
           fontFamily: pilhaSans(fonte), fontWeight: 900, fontSize: 116, lineHeight: 1.02,
           letterSpacing: '-0.035em', color: cores.texto, textAlign: 'center', textWrap: 'balance',
-          opacity: e, transform: `translateY(${(1 - e) * 70}px) scale(${1.08 - 0.08 * e})`,
+          // Gancho legível no quadro zero; a mola anima apenas o movimento.
+          opacity: 1, transform: `translateY(${(1 - e) * 70}px) scale(${1.08 - 0.08 * e})`,
         }}
       >
         <ComDestaque texto={cena.titulo} destaque={cena.destaque} cores={cores} fonteItalica={fonteItalica} />

@@ -15,7 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { lerArgs, pastaProjeto, lerCenas, salvarCenas, validar, estimarTempos } from './_comum.mjs';
+import { lerArgs, pastaProjeto, lerCenas, salvarCenas, validar, validarTempos, estimarTempos } from './_comum.mjs';
 
 const args = lerArgs();
 const projeto = pastaProjeto(args);
@@ -39,16 +39,24 @@ if (!origem || !fs.existsSync(origem)) falhar('Passe o caminho do MP3: node mixa
 // duração do reel: da narração, se houver; se não, a estimativa pela fala
 let duracao;
 const arqPalavras = dados.palavras ? path.join(projeto, 'public', dados.palavras) : null;
-if (arqPalavras && fs.existsSync(arqPalavras)) duracao = JSON.parse(fs.readFileSync(arqPalavras, 'utf8')).duracao + 1.2;
+if (arqPalavras) {
+  if (!fs.existsSync(arqPalavras)) falhar('palavras.json não encontrado; rode narrar.mjs de novo.');
+  let tempos;
+  try { tempos = JSON.parse(fs.readFileSync(arqPalavras, 'utf8')); } catch { falhar('palavras.json inválido.'); }
+  const problemas = validarTempos(tempos, dados.cenas);
+  if (problemas.length) falhar(problemas.join('\n'));
+  duracao = tempos.duracao + 1.2;
+}
 else duracao = estimarTempos(dados.cenas).duracao;
 duracao = Math.ceil(duracao * 10) / 10 + 0.5;
 
 const destino = path.join(projeto, 'public', 'trilha.mp3');
 fs.mkdirSync(path.dirname(destino), { recursive: true });
 const temFfmpeg = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' }).status === 0;
+const inicio = args.inicio === undefined ? 0 : Number(args.inicio);
+if (!Number.isFinite(inicio) || inicio < 0) falhar('--inicio precisa ser número de segundos maior ou igual a zero.');
 
 if (temFfmpeg) {
-  const inicio = args.inicio ? Number(args.inicio) : 0;
   const fadeOut = Math.max(0, duracao - 1.5).toFixed(2);
   const r = spawnSync('ffmpeg', [
     '-v', 'error', '-y',

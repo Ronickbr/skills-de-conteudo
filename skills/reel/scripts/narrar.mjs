@@ -15,7 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { lerArgs, pastaProjeto, lerCenas, salvarCenas, lerSegredo, validar } from './_comum.mjs';
+import { lerArgs, pastaProjeto, lerCenas, salvarCenas, lerSegredo, validar, validarTempos } from './_comum.mjs';
 
 const API = 'https://api.elevenlabs.io';
 // "Sarah": voz pré-pronta, presente em toda conta, fala português pelo modelo multilíngue.
@@ -37,9 +37,8 @@ const chaveOuFalha = () => {
 const pedir = async (url, init = {}) => {
   const r = await fetch(url, init);
   if (!r.ok) {
-    const corpo = (await r.text()).slice(0, 300);
     const dica = r.status === 401 ? ' (chave inválida ou sem permissão)' : r.status === 404 ? ' (voz não encontrada: vozes da biblioteca precisam ser adicionadas à sua conta antes)' : '';
-    falhar(`ElevenLabs respondeu ${r.status}${dica}: ${corpo}`);
+    falhar(`ElevenLabs respondeu ${r.status}${dica}. Confira as permissões e limites da sua conta.`);
   }
   return r;
 };
@@ -100,7 +99,11 @@ const arqPalavras = path.join(publico, 'palavras.json');
 
 if (fs.existsSync(arqAudio) && fs.existsSync(arqPalavras) && !args.refazer) {
   try {
-    if (JSON.parse(fs.readFileSync(arqPalavras, 'utf8')).hash === hash) {
+    const cached = JSON.parse(fs.readFileSync(arqPalavras, 'utf8'));
+    if (cached.hash === hash && !validarTempos(cached, dados.cenas).length) {
+      dados.narracao = 'narracao.mp3';
+      dados.palavras = 'palavras.json';
+      salvarCenas(arq, dados);
       console.log('Narração já gerada para este texto e esta voz (nenhum crédito gasto). Use --refazer para gerar outra tomada.');
       process.exit(0);
     }
@@ -119,6 +122,7 @@ const r = await pedir(`${API}/v1/text-to-speech/${encodeURIComponent(voz)}/with-
 const resp = await r.json();
 const al = resp.alignment ?? resp.normalized_alignment;
 if (!resp.audio_base64 || !al?.characters?.length) falhar('A resposta veio sem áudio ou sem tempos por caractere.');
+if (!Array.isArray(al.character_start_times_seconds) || !Array.isArray(al.character_end_times_seconds) || al.characters.length !== al.character_start_times_seconds.length || al.characters.length !== al.character_end_times_seconds.length) falhar('A resposta veio com alinhamento incompleto. Nenhum arquivo foi gravado.');
 
 // limites de cada cena dentro do texto corrido
 const inicioCena = [];
@@ -146,6 +150,8 @@ const cenas = dados.cenas.map((_, i) => {
 cenas.forEach((c, i) => { c.fim = i + 1 < cenas.length ? cenas[i + 1].inicio : duracao; });
 
 const arred = (n) => Math.round(n * 1000) / 1000;
+const problemas = validarTempos({ duracao, cenas, palavras }, dados.cenas);
+if (problemas.length) falhar(`Alinhamento inválido: ${problemas.join(' ')} Nenhum arquivo foi gravado.`);
 fs.writeFileSync(arqAudio, Buffer.from(resp.audio_base64, 'base64'));
 fs.writeFileSync(arqPalavras, JSON.stringify({
   hash, voz, modelo,

@@ -21,13 +21,17 @@ function lerArgumentos(argv) {
   const opcoes = { seletor: '.slide', escala: 1 };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--seletor') opcoes.seletor = argv[++i];
-    else if (argv[i] === '--escala') opcoes.escala = Number(argv[++i]) || 1;
+    else if (argv[i] === '--escala') opcoes.escala = Number(argv[++i]);
     else posicionais.push(argv[i]);
   }
   return { arquivo: posicionais[0], saida: posicionais[1] || 'out', ...opcoes };
 }
 
 const { arquivo, saida, seletor, escala } = lerArgumentos(process.argv.slice(2));
+if (!Number.isFinite(escala) || escala <= 0 || !seletor) {
+  console.error('--escala precisa ser número positivo e --seletor precisa de um seletor CSS.');
+  process.exit(1);
+}
 
 if (!arquivo) {
   console.error('Uso: node exportar.mjs carrossel.html [pasta-de-saida] [--seletor ".slide"] [--escala 1]');
