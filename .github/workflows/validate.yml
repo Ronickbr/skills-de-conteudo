@@ -19,3 +19,4 @@ jobs:
         working-directory: skills/reel/template
       - run: npm run typecheck
         working-directory: skills/reel/template
+      - run: npm run test:audio

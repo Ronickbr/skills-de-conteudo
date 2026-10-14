@@ -128,6 +128,9 @@ test('erros da API não expõem o corpo nem gravam narração incompleta', t => 
   const invalid = spawnSync(process.execPath, args, { encoding: 'utf8', env });
   assert.equal(invalid.status, 1); assert.match(invalid.stderr, /alinhamento incompleto/);
   assert.equal(fs.existsSync(path.join(project, 'public/narracao.mp3')), false);
+  fs.writeFileSync(stub, "globalThis.fetch = async () => { throw new TypeError('fetch failed', {cause: {code: 'EACCES'}}); };");
+  const network = spawnSync(process.execPath, args, { encoding: 'utf8', env });
+  assert.equal(network.status, 1); assert.match(network.stderr, /EACCES/); assert.doesNotMatch(network.stderr, /fake-test-key/);
 });
 
 test('mixagem sem ffmpeg copia trilha, atualiza JSON e permite remover', t => {

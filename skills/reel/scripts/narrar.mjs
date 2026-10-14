@@ -35,7 +35,12 @@ const chaveOuFalha = () => {
 };
 
 const pedir = async (url, init = {}) => {
-  const r = await fetch(url, init);
+  let r;
+  try { r = await fetch(url, init); }
+  catch (error) {
+    const code = error.cause?.code ?? 'falha de rede';
+    falhar(`Não foi possível conectar à ElevenLabs (${code}). Confira a rede e as permissões do ambiente; não é evidência de chave inválida.`);
+  }
   if (!r.ok) {
     const dica = r.status === 401 ? ' (chave inválida ou sem permissão)' : r.status === 404 ? ' (voz não encontrada: vozes da biblioteca precisam ser adicionadas à sua conta antes)' : '';
     falhar(`ElevenLabs respondeu ${r.status}${dica}. Confira as permissões e limites da sua conta.`);

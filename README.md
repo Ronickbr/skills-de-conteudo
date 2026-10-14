@@ -101,6 +101,10 @@ A CI executa validação, testes e TypeScript em Windows e Linux. Veja [docs/VAL
 
 Com as cinco skills instaladas neste checkout e Codex no PATH, `node scripts/check-codex-discovery.mjs .` confirma a descoberta real pelo app-server sem iniciar chat ou modelo.
 
+Depois de instalar as dependências do template, `npm run test:audio` executa normalização, repetição, corte e fades com ffmpeg real e mede o áudio decodificado. Usa o binário que acompanha Remotion ou `FFMPEG_BIN`; não consome API. `npm test` pula essa integração quando `FFMPEG_BIN` não estiver definido; a CI executa a integração separadamente em ambos os sistemas.
+
+Para testar seleção nativa e respostas com seu Codex autenticado, rode `node scripts/check-codex-prompts.mjs` (opcionalmente passando o caminho do executável). São seis chamadas ao modelo configurado, sem `$nome`, incluindo um pedido de roteiro isolado como teste de fronteira. Eventos, prompts e respostas ficam em `.validation/model-prompts`, ignorado pelo Git. Revise os eventos para distinguir leitura da skill de mera menção ao nome. Os processos são efêmeros e em modo somente leitura; não geram voz, publicam ou enviam mensagens.
+
 ## Estrutura e licença
 
 `skills/<nome>/SKILL.md` contém frontmatter e instruções; `scripts/`, `templates/`, `template/` e `exemplos/` são recursos relativos de cada pacote. O instalador mantém essa estrutura. Metadados UI em `agents/openai.yaml` são opcionais e não são necessários à execução. Dependências npm são declaradas nos manifests de mídia; não são ferramentas MCP.

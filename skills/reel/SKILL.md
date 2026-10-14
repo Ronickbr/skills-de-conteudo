@@ -74,7 +74,7 @@ narração gasta crédito do ElevenLabs. Sem narração, siga direto quando a pe
 - Números curtos em dígito na fala ("23 horas", "1,6 grama") para a legenda ficar limpa.
 - Promessa só do que é verdade. Não invente estatística: se não tem fonte, use outro tipo de cena.
 - **Última cena é sempre `cta`**, e a fala diz a palavra em voz alta ("Comenta GUIA que eu te
-  mando o passo a passo").
+  mando o passo a passo"). Sem narração, `fala` continua obrigatório como texto da legenda e estimativa de tempo; não significa que haja voz no vídeo.
 
 ### 3. Montar o estúdio (uma vez) e a pasta do reel
 
@@ -144,6 +144,7 @@ o reel sai sem música.
 ```bash
 node "<skill>/scripts/mixar.mjs" "/caminho/da/musica.mp3" --projeto reels/<slug>
 node "<skill>/scripts/mixar.mjs" "/caminho/da/musica.mp3" --projeto reels/<slug> --inicio 12   # pula a introdução
+node "<skill>/scripts/mixar.mjs" "/caminho/da/musica.mp3" --projeto reels/<slug> --ffmpeg "/caminho/do/ffmpeg" # binário fora do PATH
 ```
 
 Com ffmpeg, o script corta no tamanho do reel (repete a música se for curta), nivela o volume e

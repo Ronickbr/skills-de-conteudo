@@ -40,6 +40,8 @@ Marque a recomendada e diga em uma frase por quê.
 
 ### 2. A legenda completa (usando a opção recomendada)
 
+Explique como aplicar os cuidados do conteúdo com orientação concreta. Evite um corpo que apenas diga “o post apresenta”, “acompanhe a orientação” ou repita a preparação sem acrescentar valor. Não introduza um assunto específico (por exemplo, produto) quando o post trata de fotografia em geral.
+
 Estrutura:
 
 1. **Primeira linha** (gancho, até 125 caracteres).

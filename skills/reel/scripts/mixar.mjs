@@ -5,6 +5,7 @@
  *   node mixar.mjs <musica.mp3> --inicio 12  # começa a música no segundo 12
  *   node mixar.mjs --remover                 # tira a trilha do reel
  *   --projeto <pasta>                        # pasta do reel (padrão: a pasta atual)
+ *   --ffmpeg <executavel>                    # caminho de um binário fora do PATH
  *
  * Com ffmpeg instalado, a música é nivelada (loudnorm) para que qualquer MP3 fique
  * no mesmo volume sob a voz. Sem ffmpeg, o arquivo é copiado como está.
@@ -52,17 +53,20 @@ duracao = Math.ceil(duracao * 10) / 10 + 0.5;
 
 const destino = path.join(projeto, 'public', 'trilha.mp3');
 fs.mkdirSync(path.dirname(destino), { recursive: true });
-const temFfmpeg = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' }).status === 0;
+const ffmpeg = typeof args.ffmpeg === 'string' ? args.ffmpeg : 'ffmpeg';
+const temFfmpeg = spawnSync(ffmpeg, ['-version'], { stdio: 'ignore' }).status === 0;
+if (args.ffmpeg && !temFfmpeg) falhar('O executável informado em --ffmpeg não está disponível.');
 const inicio = args.inicio === undefined ? 0 : Number(args.inicio);
 if (!Number.isFinite(inicio) || inicio < 0) falhar('--inicio precisa ser número de segundos maior ou igual a zero.');
 
 if (temFfmpeg) {
-  const fadeOut = Math.max(0, duracao - 1.5).toFixed(2);
-  const r = spawnSync('ffmpeg', [
+  // volume com avaliação por quadro também funciona em builds sem o filtro afade.
+  const fade = `volume='if(isnan(t),0,min(1,t/0.4)*max(0,min(1,(${duracao}-t)/1.5)))':eval=frame`;
+  const r = spawnSync(ffmpeg, [
     '-v', 'error', '-y',
     '-stream_loop', '-1', '-ss', String(inicio), '-i', origem,
     '-t', String(duracao), '-vn',
-    '-af', `loudnorm=I=-20:TP=-2:LRA=11,afade=t=in:d=0.4,afade=t=out:st=${fadeOut}:d=1.5`,
+    '-af', `loudnorm=I=-20:TP=-2:LRA=11,${fade}`,
     '-ar', '44100', '-ac', '2', '-b:a', '192k', destino,
   ], { encoding: 'utf8' });
   if (r.status !== 0) falhar(`ffmpeg falhou: ${(r.stderr || '').slice(0, 300)}`);

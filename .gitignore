@@ -5,3 +5,4 @@ out/
 *.mp3
 .DS_Store
 .agents/skills/
+.validation/

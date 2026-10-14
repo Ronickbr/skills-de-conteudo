@@ -71,6 +71,8 @@ Dê **3 opções de capa** com ângulos diferentes (número, erro, resultado) e 
 
 Um resumo de tudo em 3 a 5 linhas, no formato de checklist ou "cola" que a pessoa queira guardar. Termine com uma frase pedindo para salvar, ligada ao uso futuro ("Salva para conferir antes de gravar o próximo vídeo").
 
+Se o usuário fixou uma quantidade de slides que não comporta capa, cada passo, resumo e CTA separados, preserve essa quantidade. Combine o resumo com o CTA de salvar no último slide quando for coerente; não acrescente um slide sem necessidade.
+
 ### Último slide: CTA
 
 **Uma única ação**, a que a pessoa definiu na entrevista. Escreva exatamente o que fazer ("Comenta PALAVRA e eu te mando"), não "se quiser, talvez". Se o CTA é comentar uma palavra, a palavra aparece em destaque.

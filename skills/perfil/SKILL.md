@@ -46,6 +46,8 @@ Mostre a nota final (média somente dos critérios avaliados, uma casa decimal, 
 
 Se um critério não pôde ser avaliado por falta de dado, escreva "não avaliado" e peça o dado. Não chute.
 
+Com evidências parciais, apresente um diagnóstico parcial e não atribua uma causa à falta de clientes. A frase causal acima é um exemplo para quando os dados sustentam a conclusão, não uma exigência de formato.
+
 ## Reescreva a bio: 3 versões
 
 Limite do Instagram: **150 caracteres** na bio. Conte os caracteres de cada versão e mostre a contagem. Estrutura de cada versão, em linhas curtas:

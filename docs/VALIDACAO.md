@@ -22,11 +22,11 @@ Mudanças implementadas:
 
 | Skill | Evidência executada | Limite da conclusão |
 |---|---|---|
-| `legenda` | Frontmatter, instalação completa, descoberta real habilitada | Qualidade editorial e escolha implícita pelo modelo ainda precisam de prompts reais |
+| `legenda` | Frontmatter, instalação completa, descoberta real habilitada; prompts editoriais na etapa complementar | Ensaio amostral, não garantia de qualidade em todos os temas |
 | `perfil` | Frontmatter, instalação completa, descoberta real habilitada; revisão das instruções | Não acessa conta; depende das evidências fornecidas |
-| `comentarios` | Frontmatter, instalação completa, descoberta real habilitada; revisão de tabela/CSV e promessa de envio | Não envia DMs; produção de CSV pelo modelo não foi automatizada no teste |
+| `comentarios` | Frontmatter, instalação completa, descoberta real habilitada; tabela/CSV redigidos no ensaio editorial | Não envia DMs; o material fornecido no ensaio não foi acessado |
 | `carrossel` | Exportação real do template: 5 PNGs 1080×1350; capa, conteúdo e CTA inspecionados visualmente | Exemplo técnico de 5 slides; instrução editorial propõe 6–10. Não é teste de geração de copy pelo modelo |
-| `reel` | Checklist, simulação sem rede/chave, TypeScript, narração/cache com API simulada e prévia real | Exportação MP4 e inspeção final registradas abaixo; voz real não testada |
+| `reel` | Checklist, TypeScript, cache simulado e real, narração real e render com áudio na etapa complementar | Amostra curta com voz padrão; não avalia qualidade de outras vozes |
 
 Todas as cinco passaram no `quick_validate.py` fornecido com a skill-creator (PyYAML 6.0.3, Python em modo UTF-8). Também passaram no validador YAML mantido neste repositório.
 
@@ -79,10 +79,9 @@ Os binários ffprobe/ffmpeg usados para inspecionar o MP4 vêm de `@remotion/com
 
 ## Pendências e limites
 
-- Narração real, vozes/listagem da ElevenLabs e sincronização audiovisual com uma conta real: não executadas. Nenhuma chave real ou crédito usado.
-- Normalização com ffmpeg e render de áudio real: não executados; fallback sem ffmpeg e remoção da trilha estão testados.
+- Narração real e preparação com ffmpeg foram executadas na etapa complementar descrita em [TESTES-COMPLEMENTARES.md](TESTES-COMPLEMENTARES.md). Listagens de vozes e comparação de qualidade entre vozes não foram solicitadas nem testadas.
 - Renderização nativa em Linux/macOS: não executada localmente. A CI configura validação/testes/TypeScript em Windows e Linux, sem render de mídia. Seu resultado deve ser lido no PR; configuração não equivale a execução bem-sucedida.
-- Prompts reais para seleção implícita e qualidade editorial das cinco skills: pendentes. Descoberta/validação não demonstram decisões de um modelo.
+- Prompts editoriais reais das cinco skills foram executados por avaliadores independentes, com correções e repetição dos casos afetados. A seleção nativa do Codex tem registro próprio na etapa complementar; seleção pelas descrições em um ensaio não equivale ao mecanismo nativo.
 - Uso pessoal `--user`: documentado, mas não executado neste trabalho. Instalação real foi somente no checkout do workspace; testes usaram destinos temporários.
 - Publicação de plugin, envio de mensagens e publicação no Instagram não fazem parte deste escopo.
 
