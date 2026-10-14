@@ -1,111 +1,112 @@
-# Skills de Conteúdo para o Claude
+# Skills de Conteúdo para OpenAI Codex
 
-5 skills que transformam o Claude no seu time de conteúdo do Instagram.
+Cinco skills em português para preparar conteúdo de Instagram. Os pacotes continuam no formato aberto de agent skills, também utilizável por outros agentes que leem `SKILL.md`.
 
-Você descreve o que quer, o Claude faz a entrevista, escreve e entrega o material pronto: reel em MP4, carrossel em PNG, legenda, auditoria de perfil e respostas para os comentários.
+| Skill | Entrega | Dependências em execução |
+|---|---|---|
+| `legenda` | Três ganchos, legenda, CTA e hashtags | Nenhuma ferramenta externa |
+| `perfil` | Auditoria com evidências, três bios e prioridades | Bio/posts fornecidos; imagens quando o ambiente permitir |
+| `comentarios` | Classificação, respostas públicas e DMs em tabela/CSV | Comentários fornecidos; não envia mensagens |
+| `carrossel` | Copy, HTML e PNGs 1080×1350 | Node ≥22, npm, Playwright e Chromium ou Chrome |
+| `reel` | Roteiro e MP4 tipográfico 1080×1920 | Node ≥22, npm, Remotion e navegador headless |
 
-## As 5 skills
+Narração do reel é opcional e usa a conta ElevenLabs do usuário. Trilha é fornecida pelo usuário. ffmpeg é opcional para preparar a trilha. Nenhuma skill publica, agenda posts ou envia DMs.
 
-| Skill | O que entrega |
+## Instalação no Codex
+
+O Codex descobre skills em `.agents/skills` nos projetos e em `~/.agents/skills` para uso pessoal. `skills/` nesta distribuição é a origem dos pacotes, não um diretório descoberto automaticamente. Consulte a [documentação oficial de skills](https://learn.chatgpt.com/docs/build-skills).
+
+Clone o fork correto e entre nele (PowerShell, bash ou zsh):
+
+```text
+git clone https://github.com/Ronickbr/skills-de-conteudo.git
+cd skills-de-conteudo
+```
+
+Para usar as cinco skills ao abrir **este repositório** no Codex:
+
+```text
+node scripts/install-skills.mjs --dest .agents/skills --dry-run
+node scripts/install-skills.mjs --dest .agents/skills
+```
+
+Para instalar em **outro projeto**, passe o caminho de sua pasta `.agents/skills`, entre aspas quando houver espaços:
+
+```text
+node scripts/install-skills.mjs --dest "C:/projetos/meu-projeto/.agents/skills"
+```
+
+No macOS/Linux, use por exemplo `--dest "/caminho/meu-projeto/.agents/skills"`. Para disponibilizar pessoalmente em todos os projetos:
+
+```text
+node scripts/install-skills.mjs --user
+```
+
+Instale somente uma skill com `--skill legenda`; repita `--skill` para escolher várias. O instalador funciona sem `npm install`, copia recursos ocultos como `.env.exemplo`, exclui dependências locais e **recusa destinos já existentes**. Para atualizar, preserve trabalhos e configurações, mova a instalação anterior para fora da pasta de descoberta e instale novamente. Não mantenha duas cópias com o mesmo nome em pastas descobertas.
+
+Sem Node: copie manualmente as cinco pastas de `skills/` para `.agents/skills/` ou `~/.agents/skills/`, incluindo todos os recursos. As três skills de texto não exigem Node para uso. ZIP: extraia antes de copiar. Não é necessário modificar `config.toml` ou instalar MCP. O Codex detecta mudanças; se a lista não atualizar, reinicie-o. Este PR não instala nada no diretório pessoal automaticamente.
+
+## Invocação
+
+Use `$nome` no pedido ou deixe o Codex selecionar pela descrição. Na CLI/IDE, `/skills` permite conferir a lista.
+
+| Skill | Exemplo |
 |---|---|
-| **`reel`** | Gancho, cenas, narração e trilha, renderizado em MP4 no seu computador com Remotion. A narração é opcional e usa a sua chave do ElevenLabs. |
-| **`carrossel`** | Carrossel da capa ao último slide: copy slide a slide, HTML e PNGs em 1080x1350 prontos para postar. |
-| **`legenda`** | Legenda com a primeira linha pensada para o que aparece antes do "mais", corpo fácil de ler, um CTA só e hashtags de nicho. Vem com 3 opções de primeira linha. |
-| **`perfil`** | Auditoria do perfil com nota de 0 a 10 em sete critérios, bio reescrita em 3 versões e as 3 mudanças de maior impacto, em ordem. |
-| **`comentarios`** | Classifica cada comentário (pediu o material, dúvida, elogio, objeção, hater, spam) e escreve a resposta pública e a DM, em tabela e CSV para copiar. |
+| `legenda` | `Use $legenda para este carrossel: [texto]. Público: fotógrafos iniciantes. CTA: salvar. Tom didático.` |
+| `perfil` | `Use $perfil. Bio: [...]. Nome: [...]. Destaques: [...]. Posts: [...]. Objetivo: captar clientes.` |
+| `comentarios` | `Use $comentarios para estes comentários: [...]. CTA GUIA, material: [link]. Apenas prepare as respostas.` |
+| `carrossel` | `Use $carrossel e entregue HTML e PNGs de 6 slides sobre organização de estudos. Público universitário. CTA salvar.` |
+| `reel` | `Use $reel e entregue um MP4 de 25 segundos sobre planejamento semanal. Sem voz e sem música. CTA comentar PLANO.` |
 
-Servem para qualquer nicho. Nenhuma tem marca, cliente ou dado embutido.
+Em ambientes sem shell/navegador, carrossel e reel podem entregar copy/roteiro, mas não exportam PNG/MP4. O agente deve informar a limitação. Download de dependências e execução de navegador obedecem às permissões do ambiente.
 
-## Instalar
+## Dependências de mídia
 
-Escolha um dos três caminhos.
+Copie recursos da **pasta instalada da skill**, nunca suponha que o diretório atual é essa pasta. Use uma pasta de trabalho autorizada e coloque caminhos entre aspas.
 
-### 1. Claude Code com o instalador de skills (mais rápido)
+**Carrossel:** copie `templates/carrossel.html`, `scripts/exportar.mjs`, `package.json` e `package-lock.json` para a pasta de trabalho, edite o HTML e execute nela:
 
-Pré-requisito: Node 18 ou mais novo. No terminal:
-
-```bash
-npx skills add andreoliveiras/skills-de-conteudo
+```text
+npm ci
+npx playwright install chromium
+node exportar.mjs carrossel.html out
 ```
 
-Para instalar para todos os seus projetos (global) direto no Claude Code, sem perguntas:
+Chrome instalado pode servir como alternativa ao Chromium. Linux pode precisar das bibliotecas de sistema do navegador (`npx playwright install --with-deps chromium`, com permissões apropriadas).
 
-```bash
-npx skills add andreoliveiras/skills-de-conteudo -g -a claude-code -y
+**Reel:** copie o conteúdo de `template/` para `reels-estudio/` no workspace e execute nessa pasta:
+
+```text
+npm ci
+npm run typecheck
+npm run still
+npm run render
 ```
 
-Para só ver o que o repositório oferece, sem instalar nada: `npx skills add andreoliveiras/skills-de-conteudo -l`. Para instalar uma skill específica: `-s carrossel`.
+Esses comandos usam o exemplo da raiz. Para um vídeo próprio, siga `skills/reel/SKILL.md`, crie `reels/<slug>/cenas.json` e `public/` e passe `--props` e `--public-dir` ao Remotion. Scripts auxiliares ficam na pasta instalada da skill. Antes de narrar, rode `narrar.mjs --simular`; ele não chama a API. Autorize o custo antes da chamada real quando essa autorização ainda não existir. A chave fica no ambiente ou `.env` local, nunca no chat ou no Git. Fontes Google são opcionais; `fonte: "sistema"` e `fonteItalica: "sistema"` evitam seu download.
 
-Se o instalador der qualquer erro, use o caminho 2, que sempre funciona.
+## Validação e testes
 
-### 2. Manual (funciona em qualquer computador)
+Na raiz, para manutenção:
 
-Precisa do Git. No terminal:
-
-```bash
-git clone https://github.com/andreoliveiras/skills-de-conteudo
-mkdir -p ~/.claude/skills
-cp -r skills-de-conteudo/skills/* ~/.claude/skills/
+```text
+npm ci
+npm run validate
+npm test
 ```
 
-Isso deixa as 5 skills disponíveis em todos os projetos do Claude Code. Para usar só em um projeto, copie para a pasta `.claude/skills/` dentro dele.
+Para validar cópias instaladas: `node scripts/validate-skills.mjs "caminho/.agents/skills"`. O validador verifica YAML, nome, descrição, corpo e links locais. Não prova qualidade editorial ou ativação real pelo modelo. Os testes verificam instalação, preservação de arquivos, scripts de mídia e narração com API simulada; não usam chave real ou créditos.
 
-Sem Git: no GitHub, clique em **Code > Download ZIP**, descompacte e copie o conteúdo da pasta `skills/` para `~/.claude/skills/`.
+A CI executa validação, testes e TypeScript em Windows e Linux. Veja [docs/VALIDACAO.md](docs/VALIDACAO.md) para evidências, smoke tests e pendências. `npm audit` permite repetir a consulta de avisos de segurança por pacote.
 
-Depois, reinicie o Claude Code.
+Com as cinco skills instaladas neste checkout e Codex no PATH, `node scripts/check-codex-discovery.mjs .` confirma a descoberta real pelo app-server sem iniciar chat ou modelo.
 
-### 3. Claude no navegador ou no aplicativo desktop
+Depois de instalar as dependências do template, `npm run test:audio` executa normalização, repetição, corte e fades com ffmpeg real e mede o áudio decodificado. Usa o binário que acompanha Remotion ou `FFMPEG_BIN`; não consome API. `npm test` pula essa integração quando `FFMPEG_BIN` não estiver definido; a CI executa a integração separadamente em ambos os sistemas.
 
-1. Baixe o repositório (**Code > Download ZIP**) e descompacte.
-2. Dentro da pasta `skills/`, escolha a skill que quer (por exemplo `legenda`) e compacte **a pasta dela** em um arquivo `.zip`. A pasta da skill deve ficar na raiz do zip, com o `SKILL.md` dentro.
-3. No Claude, abra **Configurações > Capacidades > Skills** e suba o `.zip`.
-4. Repita para cada skill.
+Para testar seleção nativa e respostas com seu Codex autenticado, rode `node scripts/check-codex-prompts.mjs` (opcionalmente passando o caminho do executável). São seis chamadas ao modelo configurado, sem `$nome`, incluindo um pedido de roteiro isolado como teste de fronteira. Eventos, prompts e respostas ficam em `.validation/model-prompts`, ignorado pelo Git. Revise os eventos para distinguir leitura da skill de mera menção ao nome. Os processos são efêmeros e em modo somente leitura; não geram voz, publicam ou enviam mensagens.
 
-Atenção: `legenda`, `perfil` e `comentarios` funcionam bem assim, só com conversa. `carrossel` e `reel` geram arquivos (PNG e MP4) rodando programas no seu computador, então **precisam do Claude Code**. `reel` não funciona no navegador. No `carrossel` pelo navegador você ainda recebe toda a copy slide a slide, mas não a exportação em PNG.
+## Estrutura e licença
 
-## Como usar
+`skills/<nome>/SKILL.md` contém frontmatter e instruções; `scripts/`, `templates/`, `template/` e `exemplos/` são recursos relativos de cada pacote. O instalador mantém essa estrutura. Metadados UI em `agents/openai.yaml` são opcionais e não são necessários à execução. Dependências npm são declaradas nos manifests de mídia; não são ferramentas MCP.
 
-É conversa. Abra o Claude Code (ou o Claude) e peça em português. Alguns exemplos:
-
-| Skill | Exemplo de pedido |
-|---|---|
-| `reel` | `Cria um reel de 30 segundos sobre os 3 erros de quem começa a vender no Instagram. Meu público são nutricionistas.` |
-| `carrossel` | `Faz um carrossel de 8 slides ensinando o passo a passo de como gravar um vídeo bom com o celular. CTA: comentar CONTEUDO.` |
-| `legenda` | `Escreve a legenda desse carrossel. Quero que o pessoal comente GUIA.` |
-| `perfil` | `Audita meu perfil. Minha bio é: "..." Meu link leva para: "..." Meus últimos 9 posts são sobre: ...` |
-| `comentarios` | `Responde esses comentários do meu último reel. Quem comentou GUIA recebe o link por DM: [cola os comentários aqui]` |
-
-O Claude pode fazer perguntas antes de começar (nicho, público, objetivo). Responda de uma vez só que ele segue.
-
-### Sobre a skill `comentarios`
-
-Ela **escreve** as respostas públicas e as DMs, em tabela e CSV. Ela **não envia** nada. Disparar DM automaticamente para quem comenta exige uma automação conectada à API do Instagram, que é outra ferramenta e não faz parte deste repositório. Sem automação, você copia as respostas e posta à mão.
-
-## Pré-requisitos
-
-- **Claude Code** para `reel` e `carrossel`; as outras três rodam em qualquer versão do Claude.
-- **Node 18 ou mais novo** para `reel` e `carrossel` (confira com `node -v`).
-- **Playwright**, para o `carrossel` exportar os PNGs. A skill instala na pasta do carrossel: `npm i playwright`. Se você já tem o Google Chrome, não precisa baixar outro navegador; senão, rode `npx playwright install chromium` (cerca de 150 MB).
-- **ffmpeg** (opcional): ajuda o `reel` a tratar áudio e vídeo. No Mac: `brew install ffmpeg`.
-- **Chave do ElevenLabs** (opcional): só para o `reel` gerar narração com voz. Sem a chave, o reel sai com legendas, cenas e trilha.
-
-Nenhuma chave vai para o repositório. Se uma skill pedir uma chave, ela fica só no seu computador.
-
-## O que tem dentro
-
-```
-skills/
-  reel/          gancho, cenas, narração, trilha e render em MP4
-  carrossel/     SKILL.md, templates/carrossel.html, scripts/exportar.mjs
-  legenda/       SKILL.md
-  perfil/        SKILL.md
-  comentarios/   SKILL.md
-```
-
-Cada skill é uma pasta com um `SKILL.md`: texto em português que o Claude lê e segue. Abra, leia e mude o que quiser. Está tudo aberto.
-
----
-
-Feito pela TAOS AI · [@andreoliveira.ai](https://www.instagram.com/andreoliveira.ai/)
-
-Licença [MIT](LICENSE): use, modifique e distribua. Se melhorar, manda o PR.
+Conteúdo original por TAOS AI · [@andreoliveira.ai](https://www.instagram.com/andreoliveira.ai/). Adaptação no fork `Ronickbr/skills-de-conteudo`. Licença [MIT](LICENSE).

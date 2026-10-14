@@ -5,7 +5,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { lerArgs, pastaProjeto, lerCenas, validar, estimarTempos, contraste, CORES_PADRAO } from './_comum.mjs';
+import { lerArgs, pastaProjeto, lerCenas, validar, validarTempos, estimarTempos, contraste, CORES_PADRAO } from './_comum.mjs';
 
 const args = lerArgs();
 const projeto = pastaProjeto(args);
@@ -38,8 +38,12 @@ if (!erros.length) {
     const p = path.join(projeto, 'public', dados.palavras);
     if (!fs.existsSync(p)) erros.push(`"palavras" aponta para public/${dados.palavras}, que não existe. Rode narrar.mjs ou ponha null.`);
     else {
-      tempos = JSON.parse(fs.readFileSync(p, 'utf8'));
-      if (tempos.cenas.length !== dados.cenas.length) erros.push('palavras.json tem número de cenas diferente do cenas.json: a fala mudou depois da narração. Rode narrar.mjs de novo.');
+      try {
+        const lido = JSON.parse(fs.readFileSync(p, 'utf8'));
+        const problemas = validarTempos(lido, dados.cenas);
+        erros.push(...problemas);
+        if (!problemas.length) tempos = lido;
+      } catch { erros.push('palavras.json não é JSON válido. Rode narrar.mjs de novo.'); }
     }
   }
   if (dados.narracao && !fs.existsSync(path.join(projeto, 'public', dados.narracao))) erros.push(`"narracao" aponta para public/${dados.narracao}, que não existe.`);
