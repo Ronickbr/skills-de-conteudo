@@ -18,7 +18,9 @@ foreach ($nome in $nomes) {
   $manifesto = Join-Path $fonte "SKILL.md"
   if (-not (Test-Path $manifesto)) { throw "Manifesto ausente: $manifesto" }
   $texto = Get-Content -LiteralPath $manifesto -Raw -Encoding UTF8
-  if ($texto -notmatch '(?s)^---\r?\n(.*?)\r?\n---' -or $Matches[1] -notmatch '(?m)^name:\s*\S+' -or $Matches[1] -notmatch '(?m)^description:\s*\S+') {
+  if ($texto -notmatch '(?s)^---\r?\n(.*?)\r?\n---') { throw "Frontmatter ausente: $manifesto" }
+  $cabecalho = $Matches[1]
+  if ($cabecalho -notmatch '(?m)^name:\s*\S+' -or $cabecalho -notmatch '(?m)^description:\s*\S+') {
     throw "Frontmatter invalido: $manifesto"
   }
   if (Test-Path $alvo) { Remove-Item -LiteralPath $alvo -Recurse -Force }
