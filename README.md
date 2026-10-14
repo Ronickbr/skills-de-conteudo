@@ -1,8 +1,58 @@
-# Skills de Conteúdo para o Claude
+# Skills de Conteúdo para Codex e Claude
 
 5 skills que transformam o Claude no seu time de conteúdo do Instagram.
 
 Você descreve o que quer, o Claude faz a entrevista, escreve e entrega o material pronto: reel em MP4, carrossel em PNG, legenda, auditoria de perfil e respostas para os comentários.
+
+## OpenAI Codex (Windows, Linux e macOS)
+
+As cinco pastas em `skills/` usam o formato Agent Skills: cada uma tem `SKILL.md` com `name` e `description`. O Codex carrega a skill quando ela está em um diretório de descoberta, **não** apenas porque o repositório está no GitHub.
+
+### Instalação simples com skills CLI
+
+Com Node instalado, no PowerShell ou terminal:
+
+```bash
+npx skills add Ronickbr/skills-de-conteudo -a codex -g
+```
+
+A CLI é um utilitário externo. Se estiver indisponível ou não reconhecer o agente, utilize o método manual abaixo.
+
+### Instalação local no Windows (recomendado)
+
+```powershell
+git clone https://github.com/Ronickbr/skills-de-conteudo.git
+cd skills-de-conteudo
+node scripts/validar-skills.mjs
+powershell -ExecutionPolicy Bypass -File .\scripts\instalar-codex.ps1
+```
+
+O instalador copia as cinco pastas **inteiras** (incluindo `scripts/`, `templates/` e `template/`) para `$HOME\.agents\skills\`. Instala somente no perfil do usuário atual, substituindo versões anteriores dessas cinco skills. Inspecione o script antes de executá-lo. Se não tiver Git, baixe e extraia o ZIP e execute os dois últimos comandos dentro da pasta extraída.
+
+Em Linux/macOS, execute:
+
+```bash
+git clone https://github.com/Ronickbr/skills-de-conteudo.git
+cd skills-de-conteudo
+node scripts/validar-skills.mjs
+mkdir -p ~/.agents/skills
+cp -R skills/. ~/.agents/skills/
+```
+
+Para instalar só neste projeto, copie as cinco pastas para `.agents/skills/` na raiz do projeto em que você inicia o Codex, em vez do diretório global.
+
+Reinicie o Codex após a instalação. Teste com **"Use a skill $legenda para escrever uma legenda de Instagram"** e depois **"Use a skill $perfil para auditar este perfil..."**. As skills também podem ser escolhidas pela descrição durante uma solicitação normal.
+
+### Requisitos para exportar mídia
+
+- `legenda`, `perfil`, `comentarios`: apenas instruções; não exigem dependências adicionais.
+- `carrossel`: Node.js 18+, Playwright e navegador Chromium/Chrome para exportar PNG.
+- `reel`: Node.js 18+, `npm install` no estúdio Remotion, além do navegador usado pelo Remotion para renderizar MP4. `ffmpeg` é opcional e ElevenLabs é opcional para narração.
+- O Codex precisa ter permissão de executar os comandos no computador. Em um ambiente remoto ou sem navegador/Node, a skill pode gerar roteiro e código, mas não se deve prometer MP4/PNG renderizados.
+
+Os exemplos em `skills/reel/SKILL.md` usam o marcador `<skill>` para o caminho absoluto da pasta da skill; substitua-o pelo caminho real antes de executar comandos. Nunca cole chaves de API no chat.
+
+---
 
 ## As 5 skills
 
@@ -25,16 +75,16 @@ Escolha um dos três caminhos.
 Pré-requisito: Node 18 ou mais novo. No terminal:
 
 ```bash
-npx skills add andreoliveiras/skills-de-conteudo
+npx skills add Ronickbr/skills-de-conteudo
 ```
 
 Para instalar para todos os seus projetos (global) direto no Claude Code, sem perguntas:
 
 ```bash
-npx skills add andreoliveiras/skills-de-conteudo -g -a claude-code -y
+npx skills add Ronickbr/skills-de-conteudo -g -a claude-code -y
 ```
 
-Para só ver o que o repositório oferece, sem instalar nada: `npx skills add andreoliveiras/skills-de-conteudo -l`. Para instalar uma skill específica: `-s carrossel`.
+Para só ver o que o repositório oferece, sem instalar nada: `npx skills add Ronickbr/skills-de-conteudo -l`. Para instalar uma skill específica: `-s carrossel`.
 
 Se o instalador der qualquer erro, use o caminho 2, que sempre funciona.
 
@@ -43,7 +93,7 @@ Se o instalador der qualquer erro, use o caminho 2, que sempre funciona.
 Precisa do Git. No terminal:
 
 ```bash
-git clone https://github.com/andreoliveiras/skills-de-conteudo
+git clone https://github.com/Ronickbr/skills-de-conteudo
 mkdir -p ~/.claude/skills
 cp -r skills-de-conteudo/skills/* ~/.claude/skills/
 ```
